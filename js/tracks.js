@@ -2,60 +2,54 @@
 
 const Tracks = (() => {
   // Two switch points connect the four parallel sidings
-  // SP1: where A meets B and the branch to C/D
+  // SP1: on the A/B line, where the branch to C/D diverges
   // SP2: where C and D split
-  const SP1 = new THREE.Vector3(1, 0, 1.5);
+  const SP1 = new THREE.Vector3(1, 0, 0);
   const SP2 = new THREE.Vector3(3, 0, 4.5);
 
-  // All four sidings run horizontally (along X axis), at different Z positions
-  // Each track has a throatX (where the loco enters, near switches) and fills
-  // inward (away from throat). For display, cars are placed so that reading
-  // left-to-right matches the array order on every track.
+  // All four sidings run horizontally (along X axis)
+  // A and B are colinear at z=0. B, C, D are equally spaced (z=0, 3, 6).
   //
   // A: throat on RIGHT (x=0), fills leftward. Loco at right, cars to left.
   // B/C/D: throat on LEFT, fills rightward. Loco at left, cars to right.
   const definitions = {
     A: {
-      throatX: 0,         // right end, near switches
+      throatX: 0,         // right end, near SP1
       fillDir: -1,        // cars fill leftward from throat
-
       z: 0,
       length: 14,
       capacity: CONFIG.trackCapacity.A,
     },
     B: {
-      throatX: 3,         // left end, near switches
+      throatX: 3,         // left end, near SP1
       fillDir: 1,         // cars fill rightward from throat
-
-      z: 3,
+      z: 0,               // colinear with A
       length: 14,
       capacity: CONFIG.trackCapacity.B,
     },
     C: {
       throatX: 5,
       fillDir: 1,
-      displayDir: 1,
-      z: 6,
+      z: 3,               // equally spaced: B=0, C=3, D=6
       length: 10,
       capacity: CONFIG.trackCapacity.C,
     },
     D: {
       throatX: 5,
       fillDir: 1,
-      displayDir: 1,
-      z: 8,
+      z: 6,
       length: 10,
       capacity: CONFIG.trackCapacity.D,
     },
   };
 
-  // Diagonal connecting rail segments (for visual rendering)
+  // Connecting rail segments (for visual rendering)
   const connectors = [
     { from: new THREE.Vector3(0, 0, 0), to: SP1 },       // A throat → SP1
-    { from: SP1, to: new THREE.Vector3(3, 0, 3) },       // SP1 → B entrance
-    { from: SP1, to: SP2 },                                // SP1 → SP2 (branch)
-    { from: SP2, to: new THREE.Vector3(5, 0, 6) },       // SP2 → C entrance
-    { from: SP2, to: new THREE.Vector3(5, 0, 8) },       // SP2 → D entrance
+    { from: SP1, to: new THREE.Vector3(3, 0, 0) },       // SP1 → B throat (straight)
+    { from: SP1, to: SP2 },                                // SP1 → SP2 (diagonal branch)
+    { from: SP2, to: new THREE.Vector3(5, 0, 3) },       // SP2 → C throat
+    { from: SP2, to: new THREE.Vector3(5, 0, 6) },       // SP2 → D throat
   ];
 
   // The throat point of each siding (where the loco enters, near switches)

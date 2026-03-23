@@ -28,7 +28,7 @@ const CONFIG = {
 
   // Camera
   cameraPosition: { x: 0, y: 28, z: 22 },
-  cameraLookAt: { x: 2, y: 0, z: 4 },
+  cameraLookAt: { x: 2, y: 0, z: 3 },
 
   // Animation
   moveSpeed: 1.5, // seconds per segment
