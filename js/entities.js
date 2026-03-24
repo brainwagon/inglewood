@@ -18,8 +18,11 @@ const Entities = (() => {
     // Water tower on the opposite side of track A, further from the tunnel entrance
     createWaterTower(-12.0, -2.8);
 
-    // Wooden sign for Siding A (placed on the grass near the track)
-    createWoodenSign(-7.9, -2.5, 'Siding A');
+    // Wooden signs for the four sidings (placed off the end of each track)
+    createWoodenSign(-14.5, -2.5, 'Siding A');
+    createWoodenSign(18.5, -2.0, 'Siding B');
+    createWoodenSign(21.5, 0.5, 'Siding C');
+    createWoodenSign(21.0, 5.0, 'Siding D', Math.PI / 12);
 
     createDecorations();
   }
@@ -525,9 +528,10 @@ const Entities = (() => {
     scene.add(group);
   }
 
-  function createWoodenSign(x, z, text) {
+  function createWoodenSign(x, z, text, rotationY = 0) {
     const group = new THREE.Group();
     group.position.set(x, 0, z);
+    group.rotation.y = rotationY;
 
     const woodMat = new THREE.MeshStandardMaterial({
       color: 0x5d4037,
@@ -590,7 +594,7 @@ const Entities = (() => {
     const placements = [
       // Behind the A/B line (negative z)
       { x: -4, z: -5.5 }, { x: 3, z: -4.5 }, { x: -1, z: -6 }, { x: 6, z: -5.5 },
-      { x: 8, z: -3.5 }, { x: 14, z: -4 }, { x: 19, z: -3 }, { x: 11, z: -4.5 },
+      { x: 8, z: -3.5 }, { x: 14, z: -4 }, { x: 11, z: -4.5 },
       { x: -7, z: -7 }, { x: 1, z: -8 }, { x: 10, z: -7 }, { x: 4, z: -9 },
       { x: 17, z: -6.5 }, { x: 24, z: -5 }, { x: 21, z: -7.5 }, { x: 13, z: -8.5 },
       { x: -10, z: -8 }, { x: -15, z: -7 },
