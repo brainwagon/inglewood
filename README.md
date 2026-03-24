@@ -2,6 +2,8 @@
 
 A browser-based 3D railway shunting puzzle built with [Three.js](https://threejs.org/). Assemble a target consist of five cars in the correct order by shunting them across four sidings — a digital take on the classic [Inglenook Sidings](https://en.wikipedia.org/wiki/Inglenook_sidings) puzzle.
 
+![Initial game setup](screenshot.png)
+
 ## How to Play
 
 1. **Open `index.html`** in a modern browser (no build step required).
@@ -27,7 +29,7 @@ A browser-based 3D railway shunting puzzle built with [Three.js](https://threejs
 - The loco lives on track **A** (the headshunt) and can visit any siding (**B**, **C**, **D**).
 - From a siding you can only return to **A** — no direct siding-to-siding moves.
 - Decoupling is not allowed on the headshunt.
-- Siding capacity is checked when *leaving*, so you can temporarily overload a siding.
+- Each siding has a car capacity limit — you cannot move onto a track if your coupled cars would exceed it.
 
 ## Track Layout
 
