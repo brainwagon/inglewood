@@ -14,6 +14,10 @@ const Entities = (() => {
     createAllCars();
     positionAllEntities();
     createTunnel();
+    
+    // Water tower on the opposite side of track A, further from the tunnel entrance
+    createWaterTower(-12.0, -2.8);
+
     createDecorations();
   }
 
@@ -333,21 +337,16 @@ const Entities = (() => {
       roughness: 1.0,
     });
 
-    // Dark portal interior (recessed box behind the arch)
-    const portalGeo = new THREE.BoxGeometry(2.0, 3.5, 2.5);
-    const portal = new THREE.Mesh(portalGeo, portalMat);
-    portal.position.set(-0.5, 1.75, 0);
-    group.add(portal);
-
     // Arch: build from a semicircle of stone blocks
-    const archRadius = 1.6;
+    // Internal radius is kept at 1.375 units; new center at 1.645 with 0.54 size
+    const archRadius = 1.645;
     const archSegments = 9;
     for (let i = 0; i <= archSegments; i++) {
       const angle = (Math.PI * i) / archSegments;
       const bx = 0;
       const by = 1.6 + Math.sin(angle) * archRadius;
       const bz = Math.cos(angle) * archRadius;
-      const blockGeo = new THREE.BoxGeometry(1.2, 0.45, 0.45);
+      const blockGeo = new THREE.BoxGeometry(1.2, 0.54, 0.54);
       const block = new THREE.Mesh(blockGeo, stoneMat);
       block.position.set(bx, by, bz);
       block.rotation.x = angle - Math.PI / 2;
@@ -357,17 +356,17 @@ const Entities = (() => {
     }
 
     // Keystone at the top of the arch
-    const keystoneGeo = new THREE.BoxGeometry(1.3, 0.55, 0.55);
+    const keystoneGeo = new THREE.BoxGeometry(1.3, 0.66, 0.66);
     const keystone = new THREE.Mesh(keystoneGeo, darkStoneMat);
-    keystone.position.set(0, 1.6 + archRadius, 0);
+    keystone.position.set(0, 3.255, 0);
     keystone.castShadow = true;
     group.add(keystone);
 
     // Stone walls on either side of the arch
     for (const side of [-1, 1]) {
-      const wallGeo = new THREE.BoxGeometry(1.2, 3.2, 0.6);
+      const wallGeo = new THREE.BoxGeometry(1.2, 3.2, 0.72);
       const wall = new THREE.Mesh(wallGeo, stoneMat);
-      wall.position.set(0, 1.6, side * (archRadius + 0.2));
+      wall.position.set(0, 1.6, side * 1.86);
       wall.castShadow = true;
       wall.receiveShadow = true;
       group.add(wall);
@@ -382,29 +381,32 @@ const Entities = (() => {
     });
 
     const outerR = 7.6;
-    const innerR = 0.8;
-    const depth = 5.0; // how far back the embankment extends
+    const holeR = 1.9; // Reduced as requested
+    const wallH = 1.6; // Height of the vertical stone walls
+    const depth = 5.0;
     const segments = 10;
 
-    // Build a half-ring shape (arch cross-section) and extrude along -X.
-    // After rotation.y = -π/2, shape coord 1 → world Z, coord 2 → world Y.
-    // Sweep from angle 0 to π so the arch spans both sides of the track (±Z).
     const shape = new THREE.Shape();
-    // Outer arc: bottom-near → top → bottom-far
+    // 1. Outer shell: from Z = -outerR to Z = +outerR
     for (let i = 0; i <= segments; i++) {
-      const angle = Math.PI * i / segments;
-      const sz = -Math.cos(angle) * outerR; // world Z: -R → 0 → +R
-      const sy = Math.sin(angle) * outerR;  // world Y: 0 → +R → 0
+      const angle = (Math.PI * i) / segments;
+      const sz = -Math.cos(angle) * outerR;
+      const sy = Math.sin(angle) * outerR;
       if (i === 0) shape.moveTo(sz, sy);
       else shape.lineTo(sz, sy);
     }
-    // Inner arc back: bottom-far → top → bottom-near
-    for (let i = segments; i >= 0; i--) {
-      const angle = Math.PI * i / segments;
-      const sz = -Math.cos(angle) * innerR;
-      const sy = Math.sin(angle) * innerR;
+    
+    // 2. Inner "cutout" hole: from Z = +holeR back to Z = -holeR
+    // This part is drawn in reverse (clockwise) to create a hole
+    shape.lineTo(holeR, 0); // Ground right
+    shape.lineTo(holeR, wallH); // Wall up
+    for (let i = 0; i <= segments; i++) {
+      const angle = (Math.PI * i) / segments;
+      const sz = Math.cos(angle) * holeR;
+      const sy = wallH + Math.sin(angle) * holeR;
       shape.lineTo(sz, sy);
     }
+    shape.lineTo(-holeR, 0); // Wall down to ground left
     shape.closePath();
 
     const extrudeSettings = { depth: depth, bevelEnabled: false };
@@ -416,6 +418,103 @@ const Entities = (() => {
     hill.receiveShadow = true;
     hill.castShadow = true;
     group.add(hill);
+
+    scene.add(group);
+  }
+
+  function createWaterTower(x, z) {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+
+    const woodMat = new THREE.MeshStandardMaterial({
+      color: 0x7d5c42,
+      roughness: 0.9,
+    });
+    const metalMat = new THREE.MeshStandardMaterial({
+      color: 0x444444,
+      metalness: 0.5,
+      roughness: 0.5,
+    });
+    const roofMat = new THREE.MeshStandardMaterial({
+      color: 0x222222,
+      roughness: 0.8,
+    });
+
+    // 4 Support Legs
+    const legGeo = new THREE.BoxGeometry(0.2, 3.2, 0.2);
+    for (let lx = -0.8; lx <= 0.8; lx += 1.6) {
+      for (let lz = -0.8; lz <= 0.8; lz += 1.6) {
+        const leg = new THREE.Mesh(legGeo, woodMat);
+        leg.position.set(lx, 1.6, lz);
+        leg.castShadow = true;
+        leg.receiveShadow = true;
+        group.add(leg);
+      }
+    }
+
+    // Cross braces
+    const braceGeo = new THREE.BoxGeometry(1.8, 0.1, 0.1);
+    for (let i = 0; i < 2; i++) {
+      const brace = new THREE.Mesh(braceGeo, woodMat);
+      brace.position.y = 1.0 + i * 1.2;
+      brace.rotation.y = Math.PI / 4;
+      group.add(brace);
+      const brace2 = brace.clone();
+      brace2.rotation.y = -Math.PI / 4;
+      group.add(brace2);
+    }
+
+    // Platform
+    const platGeo = new THREE.BoxGeometry(2.2, 0.2, 2.2);
+    const plat = new THREE.Mesh(platGeo, woodMat);
+    plat.position.y = 3.3;
+    plat.castShadow = true;
+    plat.receiveShadow = true;
+    group.add(plat);
+
+    // Cylindrical Tank (Wooden slats)
+    const tankGeo = new THREE.CylinderGeometry(1.3, 1.3, 2.8, 16);
+    const tank = new THREE.Mesh(tankGeo, woodMat);
+    tank.position.y = 3.4 + 1.4;
+    tank.castShadow = true;
+    tank.receiveShadow = true;
+    group.add(tank);
+
+    // Metal Hoops around the tank
+    for (let h = 0; h < 3; h++) {
+      const hoopGeo = new THREE.TorusGeometry(1.31, 0.04, 8, 24);
+      const hoop = new THREE.Mesh(hoopGeo, metalMat);
+      hoop.position.y = 3.4 + 0.5 + h * 0.9;
+      hoop.rotation.x = Math.PI / 2;
+      group.add(hoop);
+    }
+
+    // Conical Roof
+    const roofGeo = new THREE.ConeGeometry(1.6, 1.2, 16);
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = 3.4 + 2.8 + 0.6;
+    roof.castShadow = true;
+    group.add(roof);
+
+    // Spout / Pipe assembly
+    const spoutGroup = new THREE.Group();
+    spoutGroup.position.set(0, 4.2, -1.3);
+    
+    // Horizontal pivot pipe
+    const pivotGeo = new THREE.CylinderGeometry(0.15, 0.15, 0.6, 8);
+    const pivot = new THREE.Mesh(pivotGeo, metalMat);
+    pivot.rotation.z = Math.PI / 2;
+    spoutGroup.add(pivot);
+
+    // Diagonally angled spout
+    const spoutGeo = new THREE.CylinderGeometry(0.18, 0.12, 2.2, 8);
+    const spout = new THREE.Mesh(spoutGeo, metalMat);
+    spout.position.set(0, -0.6, -0.8);
+    spout.rotation.x = -Math.PI / 3;
+    spout.castShadow = true;
+    spoutGroup.add(spout);
+
+    group.add(spoutGroup);
 
     scene.add(group);
   }
@@ -433,34 +532,41 @@ const Entities = (() => {
     // Place decorations outside a padded version of that box
     const placements = [
       // Behind the A/B line (negative z)
-      { x: -10, z: -4 }, { x: -4, z: -5.5 }, { x: 3, z: -4.5 },
-      { x: 8, z: -3.5 }, { x: 14, z: -4 }, { x: 19, z: -3 },
-      { x: -7, z: -7 }, { x: 1, z: -8 }, { x: 10, z: -7 },
-      { x: 17, z: -6.5 }, { x: 24, z: -5 },
+      { x: -4, z: -5.5 }, { x: 3, z: -4.5 }, { x: -1, z: -6 }, { x: 6, z: -5.5 },
+      { x: 8, z: -3.5 }, { x: 14, z: -4 }, { x: 19, z: -3 }, { x: 11, z: -4.5 },
+      { x: -7, z: -7 }, { x: 1, z: -8 }, { x: 10, z: -7 }, { x: 4, z: -9 },
+      { x: 17, z: -6.5 }, { x: 24, z: -5 }, { x: 21, z: -7.5 }, { x: 13, z: -8.5 },
+      { x: -10, z: -8 }, { x: -15, z: -7 },
       // Beyond track D / below the layout (large positive z)
-      { x: -5, z: 8 }, { x: 2, z: 9 }, { x: 8, z: 8.5 },
-      { x: 14, z: 9 }, { x: 20, z: 8 }, { x: 25, z: 7 },
-      { x: -2, z: 11 }, { x: 6, z: 12 }, { x: 16, z: 11 },
+      { x: -5, z: 8 }, { x: 2, z: 9 }, { x: 8, z: 8.5 }, { x: -1, z: 10 },
+      { x: 14, z: 9 }, { x: 20, z: 8 }, { x: 25, z: 7 }, { x: 11, z: 11 },
+      { x: -2, z: 11 }, { x: 6, z: 12 }, { x: 16, z: 11 }, { x: 22, z: 10.5 },
+      { x: -8, z: 12 }, { x: 1, z: 14 }, { x: 12, z: 13.5 },
       // Far left of track A (around the tunnel hill)
-      { x: -20, z: -4 }, { x: -22, z: 2 }, { x: -20, z: 6 },
+      { x: -20, z: -4 }, { x: -22, z: 2 }, { x: -20, z: 6 }, { x: -24, z: -2 },
+      { x: -25, z: 4 }, { x: -23, z: 8 }, { x: -18, z: 9 },
+      // Hillside trees (elevated)
+      { x: -17, z: -4, y: 3.5 }, { x: -17, z: 4, y: 3.5 }, { x: -18, z: 0, y: 5.5 },
       // Far right of tracks B/C
-      { x: 23, z: -1 }, { x: 24, z: 3 }, { x: 22, z: 6 },
+      { x: 23, z: -1 }, { x: 24, z: 3 }, { x: 22, z: 6 }, { x: 26, z: 1 },
+      { x: 27, z: 5 }, { x: 25, z: -3 },
     ];
 
     placements.forEach((p) => {
       // Add slight random jitter
       const jx = p.x + (rand() - 0.5) * 2;
       const jz = p.z + (rand() - 0.5) * 2;
+      const jy = p.y || 0; // Use explicit elevation or 0
 
-      if (rand() < 0.45) {
-        createBoulder(jx, jz, rand);
+      if (rand() < 0.35) { // Adjusted to keep tree density higher
+        createBoulder(jx, jz, rand, jy);
       } else {
-        createPineTree(jx, jz, rand);
+        createPineTree(jx, jz, rand, jy);
       }
     });
   }
 
-  function createBoulder(x, z, rand) {
+  function createBoulder(x, z, rand, yOffset = 0) {
     const size = 0.4 + rand() * 0.8;
     const geo = new THREE.DodecahedronGeometry(size, 0);
     const mat = new THREE.MeshStandardMaterial({
@@ -469,7 +575,7 @@ const Entities = (() => {
       flatShading: true,
     });
     const mesh = new THREE.Mesh(geo, mat);
-    mesh.position.set(x, size * 0.4, z);
+    mesh.position.set(x, size * 0.4 + yOffset, z);
     mesh.rotation.set(rand() * Math.PI, rand() * Math.PI, rand() * Math.PI);
     // Squash slightly for a natural look
     mesh.scale.set(1 + rand() * 0.3, 0.6 + rand() * 0.4, 1 + rand() * 0.3);
@@ -478,13 +584,14 @@ const Entities = (() => {
     scene.add(mesh);
   }
 
-  function createPineTree(x, z, rand) {
+  function createPineTree(x, z, rand, yOffset = 0) {
     const group = new THREE.Group();
-    group.position.set(x, 0, z);
+    group.position.set(x, yOffset, z);
     group.rotation.y = rand() * Math.PI * 2;
 
-    const height = 1.8 + rand() * 2.0;
-    const trunkRadius = 0.08 + rand() * 0.04;
+    const height = 1.8 + rand() * 9.6; // From 1.8 up to ~11.4 (3x current max)
+    const widthScale = 0.5 + (height / 11.4) * 0.5; // Wider base for taller trees
+    const trunkRadius = (0.08 + rand() * 0.04) * widthScale * (height / 3.8);
 
     // Trunk
     const trunkGeo = new THREE.CylinderGeometry(trunkRadius * 0.6, trunkRadius, height * 0.4, 6);
@@ -507,7 +614,7 @@ const Entities = (() => {
     const tiers = 3;
     for (let i = 0; i < tiers; i++) {
       const t = i / tiers;
-      const coneRadius = (0.5 + rand() * 0.3) * (1 - t * 0.35);
+      const coneRadius = (0.5 + rand() * 0.3) * widthScale * (height / 3.8) * (1 - t * 0.35);
       const coneHeight = height * (0.3 + rand() * 0.1);
       const coneGeo = new THREE.ConeGeometry(coneRadius, coneHeight, 7);
       const cone = new THREE.Mesh(coneGeo, foliageMat);
