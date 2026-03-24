@@ -49,20 +49,21 @@ body {
   align-items: flex-start;
   padding: 20px 25px;
   pointer-events: none;
+  font-family: 'Rye', cursive;
 }
 
 #target-panel {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 8px;
-  padding: 8px 14px;
+  padding: 10px 16px;
 }
 
 #target-label {
-  color: #aaa;
-  font-size: 12px;
-  text-transform: uppercase;
+  color: #ffd700;
+  font-size: 14px;
+  text-transform: none;
   letter-spacing: 1px;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
 }
 
 #target-cars {
@@ -79,7 +80,7 @@ body {
   justify-content: center;
   color: #fff;
   font-size: 13px;
-  font-weight: bold;
+  font-weight: normal;
   text-shadow: 0 1px 2px rgba(0,0,0,0.6);
   border: 2px solid rgba(255,255,255,0.3);
 }
@@ -95,9 +96,8 @@ body {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 8px;
   padding: 8px 14px;
-  color: #fff;
+  color: #ffd700;
   font-size: 16px;
-  font-weight: bold;
 }
 
 #status-line {
@@ -120,18 +120,19 @@ body {
   background: rgba(0, 0, 0, 0.6);
   border-radius: 10px;
   padding: 10px 16px;
+  font-family: 'Rye', cursive;
 }
 
 #move-buttons, #action-buttons {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .control-label {
-  color: #aaa;
-  font-size: 13px;
-  margin-right: 2px;
+  color: #ffd700;
+  font-size: 14px;
+  margin-right: 4px;
 }
 
 #controls button {
@@ -139,7 +140,7 @@ body {
   border: none;
   border-radius: 6px;
   font-size: 14px;
-  font-weight: 600;
+  font-family: 'Rye', cursive;
   cursor: pointer;
   transition: background 0.2s, transform 0.1s, opacity 0.2s;
 }
@@ -197,25 +198,26 @@ body {
 }
 
 #victory-text {
-  font-size: 64px;
-  font-weight: bold;
+  font-family: 'Rye', cursive;
+  font-size: 84px;
   color: #ffd700;
   text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 #victory-moves {
-  font-size: 22px;
+  font-family: 'Rye', cursive;
+  font-size: 24px;
   color: #fff;
-  margin-bottom: 24px;
+  margin-bottom: 30px;
 }
 
 #btn-play-again {
-  padding: 12px 30px;
+  padding: 14px 40px;
   border: none;
   border-radius: 8px;
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-family: 'Rye', cursive;
   background: #ffd700;
   color: #1a1a2e;
   cursor: pointer;
