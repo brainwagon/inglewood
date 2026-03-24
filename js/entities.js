@@ -22,7 +22,7 @@ const Entities = (() => {
     createWoodenSign(-14.5, -2.5, 'Siding A');
     createWoodenSign(18.5, -2.0, 'Siding B');
     createWoodenSign(21.5, 0.5, 'Siding C');
-    createWoodenSign(21.0, 5.0, 'Siding D', Math.PI / 12);
+    createWoodenSign(21.0, 5.0, 'Siding D', -Math.PI / 12);
 
     createDecorations();
   }
@@ -601,7 +601,7 @@ const Entities = (() => {
       // Beyond track D / below the layout (large positive z)
       { x: -5, z: 8 }, { x: 2, z: 9 }, { x: 8, z: 8.5 }, { x: -1, z: 10 },
       { x: 14, z: 9 }, { x: 20, z: 8 }, { x: 25, z: 7 }, { x: 11, z: 11 },
-      { x: -2, z: 11 }, { x: 6, z: 12 }, { x: 16, z: 11 }, { x: 22, z: 10.5 },
+      { x: -2, z: 11 }, { x: 6, z: 12 }, { x: 16, z: 11 },
       { x: -8, z: 12 }, { x: 1, z: 14 }, { x: 12, z: 13.5 },
       // Far left of track A (around the tunnel hill)
       { x: -20, z: -4 }, { x: -22, z: 2 }, { x: -20, z: 6 }, { x: -24, z: -2 },
