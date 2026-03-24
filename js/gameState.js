@@ -80,11 +80,13 @@ const GameState = (() => {
     if (state.locoTrack !== 'A' && toTrack !== 'A') return false;
 
     if (state.locoTrack === 'A') {
-      // A → siding: always allowed (loco can temporarily exceed siding capacity)
-      return true;
+      // A → siding: coupled cars must not exceed the destination siding's capacity
+      return state.coupled.length + state.sidings[toTrack].length <= CONFIG.trackCapacity[toTrack];
     } else {
-      // Siding → A: cars left behind on the siding must fit within its capacity
-      return state.sidings[state.locoTrack].length <= CONFIG.trackCapacity[state.locoTrack];
+      // Siding → A: cars left behind must fit within siding capacity,
+      // and coupled cars must not exceed A's capacity
+      return state.sidings[state.locoTrack].length <= CONFIG.trackCapacity[state.locoTrack]
+        && state.coupled.length <= CONFIG.trackCapacity.A;
     }
   }
 
