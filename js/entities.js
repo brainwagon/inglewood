@@ -21,7 +21,7 @@ const Entities = (() => {
     // Wooden signs for the four sidings (placed off the end of each track)
     // Siding A is the headshunt; its sign is to the side.
     // Sidings B, C, D signs are colinear with the track centerline.
-    createWoodenSign(-14.5, -2.5, 'Siding A');
+    createWoodenSign(-8.1, -2.5, 'Siding A');
     createWoodenSign(18.5, 0, 'Siding B');
     createWoodenSign(22.0, 2.0, 'Siding C');
     createWoodenSign(21.5, 5.5, 'Siding D', -Math.PI / 12);
