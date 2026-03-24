@@ -19,10 +19,12 @@ const Entities = (() => {
     createWaterTower(-12.0, -2.8);
 
     // Wooden signs for the four sidings (placed off the end of each track)
+    // Siding A is the headshunt; its sign is to the side.
+    // Sidings B, C, D signs are colinear with the track centerline.
     createWoodenSign(-14.5, -2.5, 'Siding A');
-    createWoodenSign(18.5, -2.0, 'Siding B');
-    createWoodenSign(21.5, 0.5, 'Siding C');
-    createWoodenSign(21.0, 5.0, 'Siding D', -Math.PI / 12);
+    createWoodenSign(18.5, 0, 'Siding B');
+    createWoodenSign(22.0, 2.0, 'Siding C');
+    createWoodenSign(21.5, 5.5, 'Siding D', -Math.PI / 12);
 
     createDecorations();
   }
@@ -610,7 +612,7 @@ const Entities = (() => {
       { x: -17, z: -4, y: 5.96 }, { x: -17, z: 4, y: 5.96 }, { x: -18, z: 0, y: 7.1 },
       { x: -19, z: -2.5, y: 6.67 }, { x: -19, z: 2.5, y: 6.67 },
       // Far right of tracks B/C
-      { x: 23, z: -1 }, { x: 24, z: 3 }, { x: 22, z: 6 }, { x: 26, z: 1 },
+      { x: 23, z: -1 }, { x: 26, z: 1 },
       { x: 27, z: 5 }, { x: 25, z: -3 },
     ];
 
