@@ -18,6 +18,9 @@ const Entities = (() => {
     // Water tower on the opposite side of track A, further from the tunnel entrance
     createWaterTower(-12.0, -2.8);
 
+    // Wooden sign for Siding A (placed on the grass near the track)
+    createWoodenSign(-6.0, -1.8, 'Siding A');
+
     createDecorations();
   }
 
@@ -38,7 +41,10 @@ const Entities = (() => {
       const start = Tracks.getTrackStart(trackId);
       const end = Tracks.getTrackEnd(trackId);
       drawRailSegment(start, end, railMaterial, sleeperMat);
-      createTrackLabel(trackId, end);
+      // Skip sprite label for A (using wooden sign instead)
+      if (trackId !== 'A') {
+        createTrackLabel(trackId, end);
+      }
     });
 
     // Draw the diagonal connector segments (switch throat)
@@ -515,6 +521,55 @@ const Entities = (() => {
     spoutGroup.add(spout);
 
     group.add(spoutGroup);
+
+    scene.add(group);
+  }
+
+  function createWoodenSign(x, z, text) {
+    const group = new THREE.Group();
+    group.position.set(x, 0, z);
+
+    const woodMat = new THREE.MeshStandardMaterial({
+      color: 0x5d4037,
+      roughness: 0.9,
+    });
+
+    // Post
+    const postGeo = new THREE.BoxGeometry(0.1, 1.4, 0.1);
+    const post = new THREE.Mesh(postGeo, woodMat);
+    post.position.y = 0.7;
+    post.castShadow = true;
+    post.receiveShadow = true;
+    group.add(post);
+
+    // Sign board
+    const boardGeo = new THREE.BoxGeometry(1.6, 0.6, 0.08);
+
+    // Canvas for text
+    const canvas = document.createElement('canvas');
+    canvas.width = 512;
+    canvas.height = 256;
+    const ctx = canvas.getContext('2d');
+
+    // Wood-like background
+    ctx.fillStyle = '#5d4037';
+    ctx.fillRect(0, 0, 512, 256);
+
+    // Text (use a serif font for old-timey look)
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 80px serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, 256, 128);
+
+    const texture = new THREE.CanvasTexture(canvas);
+    const boardMat = new THREE.MeshStandardMaterial({ map: texture });
+
+    const board = new THREE.Mesh(boardGeo, boardMat);
+    board.position.y = 1.1;
+    board.castShadow = true;
+    board.receiveShadow = true;
+    group.add(board);
 
     scene.add(group);
   }
