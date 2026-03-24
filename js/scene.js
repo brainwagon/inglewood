@@ -69,7 +69,7 @@ const SceneManager = (() => {
     createSkyDome(sunPos);
 
     // Ground plane
-    const groundGeo = new THREE.PlaneGeometry(CONFIG.groundSize, CONFIG.groundSize);
+    const groundGeo = new THREE.PlaneGeometry(CONFIG.groundSize, CONFIG.groundSize * 0.6);
     const groundTexture = createGroundTexture();
     const groundMat = new THREE.MeshStandardMaterial({
       map: groundTexture,
