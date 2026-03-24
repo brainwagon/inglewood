@@ -13,6 +13,7 @@ const Entities = (() => {
     createLocomotive();
     createAllCars();
     positionAllEntities();
+    createTunnel();
     createDecorations();
   }
 
@@ -307,6 +308,118 @@ const Entities = (() => {
     return new THREE.CanvasTexture(canvas);
   }
 
+  // ── Tunnel entrance at the far-left end of track A ──
+  function createTunnel() {
+    const trackEnd = Tracks.getTrackEnd('A');
+    // Place the tunnel portal just beyond the end of track A
+    const tunnelX = trackEnd.x - 1.0;
+    const tunnelZ = trackEnd.z;
+
+    const group = new THREE.Group();
+    group.position.set(tunnelX, 0, tunnelZ);
+
+    const stoneMat = new THREE.MeshStandardMaterial({
+      color: 0x6b6b6b,
+      roughness: 0.95,
+      flatShading: true,
+    });
+    const darkStoneMat = new THREE.MeshStandardMaterial({
+      color: 0x4a4a4a,
+      roughness: 0.95,
+      flatShading: true,
+    });
+    const portalMat = new THREE.MeshStandardMaterial({
+      color: 0x0a0a0a,
+      roughness: 1.0,
+    });
+
+    // Dark portal interior (recessed box behind the arch)
+    const portalGeo = new THREE.BoxGeometry(2.0, 3.5, 2.5);
+    const portal = new THREE.Mesh(portalGeo, portalMat);
+    portal.position.set(-0.5, 1.75, 0);
+    group.add(portal);
+
+    // Arch: build from a semicircle of stone blocks
+    const archRadius = 1.6;
+    const archSegments = 9;
+    for (let i = 0; i <= archSegments; i++) {
+      const angle = (Math.PI * i) / archSegments;
+      const bx = 0;
+      const by = 1.6 + Math.sin(angle) * archRadius;
+      const bz = Math.cos(angle) * archRadius;
+      const blockGeo = new THREE.BoxGeometry(1.2, 0.45, 0.45);
+      const block = new THREE.Mesh(blockGeo, stoneMat);
+      block.position.set(bx, by, bz);
+      block.rotation.x = angle - Math.PI / 2;
+      block.castShadow = true;
+      block.receiveShadow = true;
+      group.add(block);
+    }
+
+    // Keystone at the top of the arch
+    const keystoneGeo = new THREE.BoxGeometry(1.3, 0.55, 0.55);
+    const keystone = new THREE.Mesh(keystoneGeo, darkStoneMat);
+    keystone.position.set(0, 1.6 + archRadius, 0);
+    keystone.castShadow = true;
+    group.add(keystone);
+
+    // Stone walls on either side of the arch
+    for (const side of [-1, 1]) {
+      const wallGeo = new THREE.BoxGeometry(1.2, 3.2, 0.6);
+      const wall = new THREE.Mesh(wallGeo, stoneMat);
+      wall.position.set(0, 1.6, side * (archRadius + 0.2));
+      wall.castShadow = true;
+      wall.receiveShadow = true;
+      group.add(wall);
+    }
+
+    // Green embankment around the tunnel — shaped as a thick arch, not a dome
+    // Built with an extruded half-ring cross-section running along X (into the hillside)
+    const hillMat = new THREE.MeshStandardMaterial({
+      color: 0x3d5c2e,
+      roughness: 0.95,
+      flatShading: true,
+    });
+
+    const outerR = 7.6;
+    const innerR = 0.8;
+    const depth = 5.0; // how far back the embankment extends
+    const segments = 10;
+
+    // Build a half-ring shape (arch cross-section) and extrude along -X.
+    // After rotation.y = -π/2, shape coord 1 → world Z, coord 2 → world Y.
+    // Sweep from angle 0 to π so the arch spans both sides of the track (±Z).
+    const shape = new THREE.Shape();
+    // Outer arc: bottom-near → top → bottom-far
+    for (let i = 0; i <= segments; i++) {
+      const angle = Math.PI * i / segments;
+      const sz = -Math.cos(angle) * outerR; // world Z: -R → 0 → +R
+      const sy = Math.sin(angle) * outerR;  // world Y: 0 → +R → 0
+      if (i === 0) shape.moveTo(sz, sy);
+      else shape.lineTo(sz, sy);
+    }
+    // Inner arc back: bottom-far → top → bottom-near
+    for (let i = segments; i >= 0; i--) {
+      const angle = Math.PI * i / segments;
+      const sz = -Math.cos(angle) * innerR;
+      const sy = Math.sin(angle) * innerR;
+      shape.lineTo(sz, sy);
+    }
+    shape.closePath();
+
+    const extrudeSettings = { depth: depth, bevelEnabled: false };
+    const hillGeo = new THREE.ExtrudeGeometry(shape, extrudeSettings);
+    const hill = new THREE.Mesh(hillGeo, hillMat);
+    // Rotate so extrusion runs along -X (to the left, into the hillside)
+    hill.rotation.y = -Math.PI / 2;
+    hill.position.set(0, 0, 0);
+    hill.receiveShadow = true;
+    hill.castShadow = true;
+    group.add(hill);
+
+    scene.add(group);
+  }
+
   // ── Scenery: boulders and pine trees ──
   function createDecorations() {
     // Seed-able pseudo-random so scenery is stable across reloads
@@ -328,8 +441,8 @@ const Entities = (() => {
       { x: -5, z: 8 }, { x: 2, z: 9 }, { x: 8, z: 8.5 },
       { x: 14, z: 9 }, { x: 20, z: 8 }, { x: 25, z: 7 },
       { x: -2, z: 11 }, { x: 6, z: 12 }, { x: 16, z: 11 },
-      // Far left of track A
-      { x: -18, z: -2 }, { x: -19, z: 2 }, { x: -17, z: 5 },
+      // Far left of track A (around the tunnel hill)
+      { x: -20, z: -4 }, { x: -22, z: 2 }, { x: -20, z: 6 },
       // Far right of tracks B/C
       { x: 23, z: -1 }, { x: 24, z: 3 }, { x: 22, z: 6 },
     ];
@@ -411,6 +524,12 @@ const Entities = (() => {
   function positionAllEntities() {
     const locoTrack = GameState.state.locoTrack;
     const coupled = GameState.state.coupled;
+
+    // Restore visibility (meshes may have been hidden by tunnel during victory)
+    locoMesh.visible = true;
+    for (let id = 1; id <= CONFIG.totalCars; id++) {
+      carMeshes[id].visible = true;
+    }
 
     // Position locomotive — on B/C/D, stop so consist contacts siding cars / buffer
     const numSiding = GameState.state.sidings[locoTrack].length;

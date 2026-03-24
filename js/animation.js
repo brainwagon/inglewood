@@ -4,6 +4,9 @@ const Animation = (() => {
   let activeAnimation = null;
   let locked = false;
 
+  // X coordinate of the tunnel mouth — meshes past this disappear during victory
+  const tunnelMouthX = Tracks.getTrackEnd('A').x;
+
   function isLocked() {
     return locked;
   }
@@ -144,6 +147,15 @@ const Animation = (() => {
         anim.startRotations[i]
       );
     }
+
+    // During victory drive-off, hide meshes as they enter the tunnel
+    if (anim.isVictory) {
+      for (let i = 0; i < anim.meshes.length; i++) {
+        if (anim.meshes[i].position.x < tunnelMouthX) {
+          anim.meshes[i].visible = false;
+        }
+      }
+    }
   }
 
   // Victory animation: train drives off the left side of siding A
@@ -210,11 +222,12 @@ const Animation = (() => {
       totalDist,
       movingRight,
       startRotations,
+      isVictory: true,
       elapsed: 0,
       duration: numSegments * CONFIG.moveSpeed,
       onComplete: () => {
         locked = false;
-        // Leave meshes off-screen — game is won
+        // Leave meshes hidden inside the tunnel — game is won
       },
     };
   }
