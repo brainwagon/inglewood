@@ -52,11 +52,15 @@ const Animation = (() => {
 
     const numSegments = waypoints.length - 1;
 
+    // Capture each mesh's starting rotation so we can avoid 180° flips
+    const startRotations = allMeshes.map((m) => m.rotation.y);
+
     activeAnimation = {
       meshes: allMeshes,
       path,
       totalDist,
       movingRight,
+      startRotations,
       elapsed: 0,
       duration: numSegments * CONFIG.moveSpeed,
       onComplete: () => {
@@ -120,7 +124,10 @@ const Animation = (() => {
     const locoData = getPointOnPath(anim.path, locoDist);
     anim.meshes[0].position.x = locoData.pos.x;
     anim.meshes[0].position.z = locoData.pos.z;
-    anim.meshes[0].rotation.y = Math.atan2(-locoData.tangent.z, locoData.tangent.x);
+    anim.meshes[0].rotation.y = noFlipAngle(
+      Math.atan2(-locoData.tangent.z, locoData.tangent.x),
+      anim.startRotations[0]
+    );
 
     // Position coupled cars: always to the RIGHT of loco along the path.
     // Moving right: cars are AHEAD on the path (greater distance = more rightward)
@@ -132,7 +139,10 @@ const Animation = (() => {
       const carData = getPointOnPath(anim.path, carDist);
       anim.meshes[i].position.x = carData.pos.x;
       anim.meshes[i].position.z = carData.pos.z;
-      anim.meshes[i].rotation.y = Math.atan2(-carData.tangent.z, carData.tangent.x);
+      anim.meshes[i].rotation.y = noFlipAngle(
+        Math.atan2(-carData.tangent.z, carData.tangent.x),
+        anim.startRotations[i]
+      );
     }
   }
 
@@ -192,11 +202,14 @@ const Animation = (() => {
 
     const numSegments = waypoints.length - 1;
 
+    const startRotations = allMeshes.map((m) => m.rotation.y);
+
     activeAnimation = {
       meshes: allMeshes,
       path,
       totalDist,
       movingRight,
+      startRotations,
       elapsed: 0,
       duration: numSegments * CONFIG.moveSpeed,
       onComplete: () => {
@@ -204,6 +217,22 @@ const Animation = (() => {
         // Leave meshes off-screen — game is won
       },
     };
+  }
+
+  // Given a tangent-derived angle and a reference starting angle,
+  // pick whichever of angle or angle±π is closest to the reference.
+  // This lets cars follow curves without flipping 180°.
+  function noFlipAngle(angle, ref) {
+    let delta = angle - ref;
+    // Normalize delta to [-π, π]
+    delta = ((delta + Math.PI) % (2 * Math.PI)) - Math.PI;
+    if (delta < -Math.PI) delta += 2 * Math.PI;
+
+    if (Math.abs(delta) > Math.PI / 2) {
+      // The tangent-based angle is >90° away from our reference — use the π-offset
+      angle += angle > ref ? -Math.PI : Math.PI;
+    }
+    return angle;
   }
 
   function smoothStep(t) {
