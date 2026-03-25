@@ -77,6 +77,7 @@ const SceneManager = (() => {
     });
     const ground = new THREE.Mesh(groundGeo, groundMat);
     ground.rotation.x = -Math.PI / 2;
+    ground.position.x = 4;
     ground.position.y = -0.05;
     ground.receiveShadow = true;
     scene.add(ground);
