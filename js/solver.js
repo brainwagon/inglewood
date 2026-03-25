@@ -60,13 +60,46 @@ class State {
   }
 
   calculateHeuristic() {
+    let breaks = 0;
+
+    // 1. Check if locomotive is attached to the first target car
     let attached = (this.locomotivePos === 'A') ? [...this.tracks.A].reverse() : this.tracks[this.locomotivePos];
-    let correctCount = 0;
-    for (let i = 0; i < Math.min(attached.length, this.target.length); i++) {
-      if (attached[i] === this.target[i]) correctCount++;
-      else break;
+    if (attached.length === 0 || attached[0] !== this.target[0]) {
+      breaks++;
     }
-    return (this.target.length - correctCount) * 2;
+
+    // 2. Check breaks between adjacent target cars
+    for (let i = 0; i < this.target.length - 1; i++) {
+      let t1 = this.target[i];
+      let t2 = this.target[i+1];
+      let foundTogether = false;
+
+      // Sidings (B, C, D): t1 should be immediately before t2
+      for (let siding of ['B', 'C', 'D']) {
+        let track = this.tracks[siding];
+        let idx1 = track.indexOf(t1);
+        if (idx1 !== -1 && idx1 + 1 < track.length && track[idx1 + 1] === t2) {
+          foundTogether = true;
+          break;
+        }
+      }
+
+      // Headshunt (A): t1 should be immediately AFTER t2 (reversed)
+      if (!foundTogether) {
+        let trackA = this.tracks.A;
+        let idx1 = trackA.indexOf(t1);
+        if (idx1 !== -1 && idx1 - 1 >= 0 && trackA[idx1 - 1] === t2) {
+          foundTogether = true;
+        }
+      }
+
+      if (!foundTogether) {
+        breaks++;
+      }
+    }
+
+    // Admissibility: A single push/pull move can fix at most 4 breaks.
+    return Math.ceil(breaks / 4);
   }
 
   isGoal() {
