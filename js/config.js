@@ -27,7 +27,7 @@ const CONFIG = {
   ],
 
   // Camera
-  cameraPosition: { x: 2, y: 30, z: 22 },
+  cameraPosition: { x: 4, y: 30, z: 22 },
   cameraLookAt: { x: 4, y: 0, z: 1.5 },
 
   // Animation
