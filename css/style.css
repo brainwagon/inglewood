@@ -115,6 +115,103 @@ body {
   background: #ffca28;
 }
 
+/* Set Target Modal */
+#target-modal {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.7);
+  z-index: 100;
+}
+
+#target-modal-box {
+  background: #1a1a2e;
+  border: 2px solid #ffd700;
+  border-radius: 16px;
+  padding: 40px 50px;
+  text-align: center;
+  font-family: 'Rye', cursive;
+  color: #fff;
+}
+
+#target-modal-box h3 {
+  color: #ffd700;
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+#target-modal-box p {
+  font-size: 16px;
+  color: #aaa;
+  margin-bottom: 24px;
+}
+
+#target-input-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.target-input {
+  width: 60px;
+  height: 60px;
+  text-align: center;
+  font-size: 32px;
+  font-family: 'Rye', cursive;
+  border: 2px solid #546e7a;
+  border-radius: 10px;
+  background: #263238;
+  color: #ffd700;
+  outline: none;
+}
+
+.target-input:focus {
+  border-color: #ffd700;
+  box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);
+}
+
+#target-modal-error {
+  color: #e53935;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+#target-modal-buttons {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+}
+
+#btn-target-ok, #btn-target-cancel {
+  padding: 12px 32px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-family: 'Rye', cursive;
+  cursor: pointer;
+}
+
+#btn-target-ok {
+  background: #ffd700;
+  color: #1a1a2e;
+}
+#btn-target-ok:hover { background: #ffca28; }
+
+#btn-target-cancel {
+  background: #546e7a;
+  color: #fff;
+}
+#btn-target-cancel:hover { background: #78909c; }
+
+#btn-set-target {
+  background: #00897b;
+  color: #fff;
+}
+#btn-set-target:hover { background: #00796b; }
+
 /* HUD */
 #hud {
   position: absolute;
@@ -301,6 +398,12 @@ body {
 }
 #btn-decouple:hover { background: #e53935; }
 
+#btn-solve {
+  background: #7b1fa2;
+  color: #fff;
+}
+#btn-solve:hover { background: #6a1b9a; }
+
 #btn-retry {
   background: #ff9800;
   color: #fff;
@@ -321,7 +424,7 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.175);
   z-index: 10;
 }
 
@@ -340,17 +443,31 @@ body {
   margin-bottom: 30px;
 }
 
-#btn-play-again {
-  padding: 14px 40px;
+#victory-buttons {
+  display: flex;
+  gap: 16px;
+}
+
+#btn-replay-level, #btn-new-game {
+  padding: 14px 32px;
   border: none;
   border-radius: 8px;
   font-size: 20px;
   font-family: 'Rye', cursive;
-  background: #ffd700;
-  color: #1a1a2e;
   cursor: pointer;
 }
-#btn-play-again:hover { background: #ffca28; }
+
+#btn-replay-level {
+  background: #ff9800;
+  color: #fff;
+}
+#btn-replay-level:hover { background: #f57c00; }
+
+#btn-new-game {
+  background: #ffd700;
+  color: #1a1a2e;
+}
+#btn-new-game:hover { background: #ffca28; }
 
 /* Error toast */
 #error-toast {
